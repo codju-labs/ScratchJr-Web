@@ -1,6 +1,10 @@
 /* sprite library panel */
+#library_paintme {
+    display: none;
+}
 
 .flipme {
+    display: none;
     position: absolute;
     margin: 0px;
     padding: 0px;
