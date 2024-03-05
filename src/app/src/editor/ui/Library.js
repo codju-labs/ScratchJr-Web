@@ -16,6 +16,7 @@ import {
   newCanvas,
   frame,
 } from "../../utils/lib";
+import Project from "../ui/Project";
 
 let selectedOne;
 let nativeJr = true;
@@ -592,6 +593,9 @@ export default class Library {
         ScratchJr.stage.currentPage.updateBkg
       );
     }
+    Project.save(ScratchJr.currentProject, () => {
+      console.log("Broadcast Autosave");
+    });
     Library.close(e);
   }
 

@@ -792,6 +792,9 @@ export default class UI {
     var isOff = ScratchJr.runtime.inactive();
     if (isOff) {
       ScratchJr.runStrips(e);
+      Project.save(ScratchJr.currentProject, () => {
+        console.log("Broadcast Autosave");
+      });
     } else {
       ScratchJr.stopStripsFromTop(e);
     }
