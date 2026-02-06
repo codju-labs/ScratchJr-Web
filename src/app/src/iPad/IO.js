@@ -195,6 +195,7 @@ export default class IO {
     // var gotit = function (str) {
     console.log("debug:- loading project");
     const str =
+      window.savedContent ||
       '[{"gallery":"samples","name":"Untitled","version":"iOSv01","deleted":"NO","pos":4,"altmd5":"5399f5c93eb1263041000024","json":{"pages":["page 1"],"currentPage":"page 1","page 1":{"textstartat":36,"sprites":["Tic 1"],"num":1,"lastSprite":"Tic 1","Tic 1":{"shown":true,"type":"sprite","md5":"Blue.svg","id":"Tic 1","flip":false,"name":"Tic","angle":0,"scale":0.5,"speed":2,"defaultScale":0.5,"sounds":["pop.mp3"],"xcoor":240,"ycoor":180,"cx":75,"cy":126,"w":151,"h":253,"homex":240,"homey":180,"homescale":0.5,"homeshown":true,"scripts":[]},"layers":["Tic 1"]}},"thumbnail":{"pagecount":1,"md5":"Untitled.png"},"id":"https://99lmsfileuploadfolder.s3.ap-south-1.amazonaws.com/uploaded_test/scratchJrFiles/Untitled.txt","mtime":"1612269590699","isgift":"0","ctime":"2021-2-2 16:11:35"}]';
     fcn(str);
     // };

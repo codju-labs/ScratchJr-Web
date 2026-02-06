@@ -3,8 +3,16 @@
     display: none;
 }
 
-.flipme {
+#projectinfo {
     display: none;
+}
+
+.spritethumb .brush {
+    display: none;
+}
+
+.flipme {
+    /* display: none; */
     position: absolute;
     margin: 0px;
     padding: 0px;
@@ -12,6 +20,8 @@
     left: ${css_vh(1.69)};
     background:  url('../assets/ui/fliplogo.svg');
     background-size: 100.5%; /* webview pixelates the image unless we do this */
+    background-size: 150% 100%;
+    pointer-events: none;
     width: ${css_vh(29.95)};
     height: ${css_vh(8.20)};
 }
