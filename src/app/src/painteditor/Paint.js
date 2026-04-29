@@ -347,7 +347,6 @@ export default class Paint {
         ScratchJr.editorEvents();
         window.onmousemove = undefined;
         window.onmouseup = undefined;
-        window.onmousemove = undefined;
         Alert.close();
         Paint.clearWorkspace();
         PaintUndo.buffer = [];

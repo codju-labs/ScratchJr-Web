@@ -158,10 +158,6 @@ export default class PaintAction {
         window.onmouseup = function (evt) {
             PaintAction.mouseUp(evt);
         };
-        window.ontouchcancel = function (evt) {
-            PaintAction.mouseMove(evt);
-            PaintAction.mouseUp(evt);
-        };
     }
 
     static mouseMove (evt) {

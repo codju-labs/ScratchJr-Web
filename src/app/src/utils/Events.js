@@ -118,29 +118,15 @@ export default class Events {
             Events.holdit(c, athold);
         }
         updatefcn = atdrag;
-        if (isTablet) { // startDrag event setting
-            delta = 10 * scaleMultiplier;
-            window.onmousemove = function (evt) {
-                Events.mouseMove(evt);
-            };
-            window.onmouseup = function (evt) {
-                Events.mouseUp(evt);
-            };
-            window.ontouchleave = function (evt) {
-                Events.mouseUp(evt);
-            };
-            window.ontouchcancel = function (evt) {
-                Events.mouseUp(evt);
-            };
-        } else {
-            delta = 7;
-            window.onmousemove = function (evt) {
-                Events.mouseMove(evt);
-            };
-            window.onmouseup = function (evt) {
-                Events.mouseUp(evt);
-            };
-        }
+        
+        delta = isTablet ? (10 * scaleMultiplier) : 7;
+
+        window.onmousemove = function (evt) {
+            Events.mouseMove(evt);
+        };
+        window.onmouseup = function (evt) {
+            Events.mouseUp(evt);
+        };
     }
 
     static holdit (c, fcn) {
@@ -211,15 +197,8 @@ export default class Events {
     }
 
     static clearEvents () {
-        if (isTablet) { // clearEvents
-            window.onmousemove = undefined;
-            window.onmouseup = undefined;
-        } else {
-            window.onmousemove = function (e) {
-                e.preventDefault();
-            };
-            window.onmouseup = undefined;
-        }
+        window.onmousemove = undefined;
+        window.onmouseup = undefined;
     }
 
     static performMouseUpAction (e) {
@@ -270,18 +249,16 @@ export default class Events {
     */
 
     static getTargetPoint (e) {
-        if (isTablet) {
-            if (e.touches && (e.touches.length > 0)) {
-                return {
-                    x: e.touches[0].pageX,
-                    y: e.touches[0].pageY
-                };
-            } else if (e.changedTouches) {
-                return {
-                    x: e.changedTouches[0].pageX,
-                    y: e.changedTouches[0].pageY
-                };
-            }
+        if (e.touches && (e.touches.length > 0)) {
+            return {
+                x: e.touches[0].pageX,
+                y: e.touches[0].pageY
+            };
+        } else if (e.changedTouches && (e.changedTouches.length > 0)) {
+            return {
+                x: e.changedTouches[0].pageX,
+                y: e.changedTouches[0].pageY
+            };
         }
         return {
             x: e.clientX,
@@ -290,9 +267,11 @@ export default class Events {
     }
 
     static updatePinchCenter (e) {
-        if (e.touches.length != 2) {
+        if (e.touches && e.touches.length != 2) {
             return;
         }
+        if (!e.touches) return; 
+
         var x1 = e.touches[0].clientX,
             y1 = e.touches[0].clientY;
         var x2 = e.touches[1].clientX,
@@ -308,7 +287,7 @@ export default class Events {
     }
 
     static zoomScale (e) {
-        if (e.touches.length !== 2) {
+        if (!e.touches || e.touches.length !== 2) {
             return lastZoomScale;
         }
         var x1 = e.touches[0].clientX,

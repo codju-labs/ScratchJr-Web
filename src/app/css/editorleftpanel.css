@@ -41,6 +41,7 @@
     width: ${css_vh(1.04)};
     height: ${css_vh(40.63)};
     background: rgba(255,255,255,0.5);
+    touch-action: none;
 }
 
 .scrollbar .sbthumb {
@@ -64,6 +65,7 @@
     top: ${css_vh(9.38)};
     width: ${css_vh(33.85)};
     overflow-x: hidden;
+    touch-action: none;
 }
 
 #library .spritethumbs {
@@ -110,6 +112,7 @@
     margin: 0px;
     margin-bottom: ${css_vh(-0.39)};
     padding: 0px;
+    touch-action: none;
 }
 
 .spritethumb .thumbcanvas{

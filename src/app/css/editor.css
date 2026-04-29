@@ -9,6 +9,7 @@ div.frame {
     -khtml-user-select: none;
     -webkit-user-select: none;
     user-select: none;
+    touch-action: none;
 }
 
 /*project info*/
@@ -86,6 +87,7 @@ div.frame {
     padding: ${css_vh(0)};
     width: ${145 * scaleMultiplier}px;
     height: ${109 * scaleMultiplier}px;
+    touch-action: none;
 }
 
 .pagethumb.on {
@@ -198,6 +200,7 @@ div.frame {
     padding: ${css_vh(0)};
     overflow: hidden;
     z-index: 10;
+    touch-action: none;
 }
 
 #blockspalette .papercut{
@@ -435,6 +438,7 @@ z-index: 5;
     right: 0;
     position: absolute;
     overflow: hidden;
+    touch-action: none;
 }
 
 #scriptscontainer {}

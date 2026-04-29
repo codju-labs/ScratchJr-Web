@@ -17,6 +17,54 @@ import {
   inappPaintEditorGuide,
 } from "./src/entry/inapp.js";
 
+// Global touch-to-mouse event bridge.
+// The codebase uses element.onmousedown / window.onmousemove / window.onmouseup
+// everywhere. On mobile browsers (especially with touch-action: none), touch events
+// do not reliably synthesize mouse events. This bridge converts single-finger touch
+// events into MouseEvents so all existing onmouse* handlers work on touch devices.
+(function installTouchMouseBridge() {
+  // Only install on touch-capable devices
+  if (!('ontouchstart' in window)) return;
+
+  var touchMap = {
+    touchstart: 'mousedown',
+    touchmove: 'mousemove',
+    touchend: 'mouseup',
+    touchcancel: 'mouseup'
+  };
+
+  Object.keys(touchMap).forEach(function (touchType) {
+    document.addEventListener(touchType, function (e) {
+      // Only handle single-finger touches for mouse simulation
+      if (e.touches && e.touches.length > 1) return;
+
+      var touch = e.changedTouches[0];
+      var mouseType = touchMap[touchType];
+
+      var mouseEvent = new MouseEvent(mouseType, {
+        bubbles: true,
+        cancelable: true,
+        view: window,
+        clientX: touch.clientX,
+        clientY: touch.clientY,
+        screenX: touch.screenX,
+        screenY: touch.screenY
+      });
+
+      // Carry over the original touch event's touches so getTargetPoint() can
+      // still extract coordinates from e.touches / e.changedTouches when needed.
+      mouseEvent.touches = e.touches;
+      mouseEvent.changedTouches = e.changedTouches;
+
+      touch.target.dispatchEvent(mouseEvent);
+
+      // Prevent the browser from also generating a delayed compatibility
+      // click / mousedown which would cause double-firing.
+      e.preventDefault();
+    }, { passive: false, capture: true });
+  });
+})();
+
 function loadSettings(settingsRoot, whenDone) {
   console.log("Calling Load settings", settingsRoot);
   IO.requestFromServer(settingsRoot + "settings.json", (result) => {

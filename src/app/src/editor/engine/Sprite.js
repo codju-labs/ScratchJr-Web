@@ -90,9 +90,9 @@ export default class Sprite {
       me.setCostume(dataurl, fcn);
     }
     // Broadcast autosave
-    Project.save(ScratchJr.currentProject, () => {
-      console.log("Broadcast Autosave");
-    });
+    // Project.save(ScratchJr.currentProject, () => {
+    //   console.log("Broadcast Autosave");
+    // });
   }
 
   getAsset(whenDone) {
