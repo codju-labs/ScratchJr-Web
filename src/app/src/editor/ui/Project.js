@@ -141,6 +141,25 @@ export default class Project {
       if (isAndroid) {
         AndroidInterface.notifyEditorDoneLoading();
       }
+
+      // Signal parent that iframe is ready
+      parent.postMessage({ type: "FRAME_READY" }, "*");
+      window.__scratchJrReady = true;
+
+      // Define external project loader for parent to call via postMessage
+      window.__loadExternalProject = function (jsonStr) {
+        try {
+          Project.dataRecieved(jsonStr);
+        } catch (e) {
+          console.error("Failed to load external project", e);
+        }
+      };
+
+      // Check if data was sent before we were ready
+      if (window.__scratchJrLoadData) {
+        window.__loadExternalProject(window.__scratchJrLoadData);
+        window.__scratchJrLoadData = null;
+      }
     }
   }
 
@@ -469,17 +488,6 @@ export default class Project {
 
   static save(id, whenDone) {
     saving = true;
-    // var th = metadata.thumbnail;
-    // if (th && ScratchJr.editmode != 'storyStarter') { // Don't try to delete the thumbnail in a sample project
-    //     var thumb = (typeof th === 'string') ? JSON.parse(th) : th;
-    //     if (thumb && thumb.md5.indexOf('samples/') < 0) { // In case we've exited story-starter mode
-    //         Project.thumbnailUnique(thumb.md5, id, function (isUnique) {
-    //             if (isUnique) {
-    //                 iOS.remove(thumb.md5, iOS.trace); // remove thumb;
-    //             }
-    //         });
-    //     }
-    // }
     metadata.id = id;
     metadata.json = Project.getProject(ScratchJr.stage.pages[0].id);
     // Send this meta data to parent iframe
@@ -488,34 +496,18 @@ export default class Project {
       type: "SAVE_DATA",
       data: projectMetaData,
     });
-    return;
-    Project.getThumbnailPNG(ScratchJr.stage.pages[0], 192, 144, getMD5);
-    function getMD5(dataurl) {
-      var pngBase64 = dataurl.split(",")[1];
-      iOS.getmd5(pngBase64, function (str) {
-        savePNG(str, pngBase64);
+
+    // Generate and send thumbnail to parent
+    Project.getThumbnailPNG(ScratchJr.stage.pages[0], 192, 144, function (dataurl) {
+      parent.postMessage({
+        type: "STAGE_THUMBNAIL",
+        data: dataurl,
       });
-    }
+    });
 
-    function savePNG(md5, pngBase64) {
-      var filename = ScratchJr.currentProject + "_" + md5;
-      iOS.setmedianame(pngBase64, filename, "png", doNext);
-    }
-
-    function doNext(md5) {
-      metadata.thumbnail = {
-        pagecount: ScratchJr.stage.pages.length,
-        md5: md5,
-      };
-      metadata.mtime = new Date().getTime().toString();
-      IO.saveProject(metadata, saveDone);
-    }
-
-    function saveDone() {
-      saving = false;
-      if (whenDone) {
-        whenDone();
-      }
+    saving = false;
+    if (whenDone) {
+      whenDone();
     }
   }
 

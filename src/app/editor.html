@@ -10,6 +10,16 @@
 
 <script>
     window.scratchJrPage = 'editor';
+
+    // Listen for LOAD_DATA messages from parent before bundle is ready
+    window.addEventListener("message", function (e) {
+      if (e.data && e.data.type === "LOAD_DATA") {
+        window.__scratchJrLoadData = e.data.data;
+        if (window.__scratchJrReady && window.__loadExternalProject) {
+          window.__loadExternalProject(e.data.data);
+        }
+      }
+    });
 </script>
 <script src='../electronClient.js'></script>
 <script type="text/javascript" src="appEntry.js"></script>
