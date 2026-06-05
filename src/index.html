@@ -17,7 +17,17 @@
     <script>
       window.scratchJrPage = "editor";
 
-      // Listen for LOAD_DATA messages from parent before bundle is ready
+      // Read initial project data from URL hash (avoids URL length limits of query params)
+      // Parent sets: iframe.src = "index.html#" + encodeURIComponent(jsonString)
+      if (window.location.hash && window.location.hash.length > 1) {
+        try {
+          window.savedContent = decodeURIComponent(window.location.hash.substring(1));
+        } catch (e) {
+          // If decode fails, ignore
+        }
+      }
+
+      // Also support postMessage for loading data after init
       window.addEventListener("message", function (e) {
         if (e.data && e.data.type === "LOAD_DATA") {
           window.__scratchJrLoadData = e.data.data;
