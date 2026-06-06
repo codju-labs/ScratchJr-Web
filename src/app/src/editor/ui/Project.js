@@ -23,6 +23,7 @@ import {
 let metadata = undefined;
 let mediaCount = -1;
 let saving = false;
+let loading = false;
 let interval = undefined;
 let pageid;
 let loadIcon = undefined;
@@ -57,6 +58,10 @@ export default class Project {
 
   static get error() {
     return error;
+  }
+
+  static get loading() {
+    return loading;
   }
 
   static clear() {
@@ -120,6 +125,7 @@ export default class Project {
       Project.loadwait(doneProjectLoad);
     }
     function doneProjectLoad() {
+      loading = false;
       // Clear gift flag
       if ("id" in metadata) {
         metadata.isgift = "0";
@@ -152,6 +158,13 @@ export default class Project {
           Project.dataRecieved(jsonStr);
         } catch (e) {
           console.error("Failed to load external project", e);
+        }
+      };
+
+      // Define external save trigger for parent to request a save via postMessage
+      window.__requestSave = function () {
+        if (ScratchJr.currentProject) {
+          Project.save(ScratchJr.currentProject);
         }
       };
 
@@ -371,6 +384,7 @@ export default class Project {
       ScratchJr.getTime(),
       "sec"
     );
+    loading = true;
     mediaCount = 0;
     ScratchJr.stage.pages = [];
     var pages = data.pages;
@@ -488,10 +502,18 @@ export default class Project {
 
   static save(id, whenDone) {
     saving = true;
-    metadata.id = id;
-    metadata.json = Project.getProject(ScratchJr.stage.pages[0].id);
-    // Send this meta data to parent iframe
-    const projectMetaData = JSON.stringify([metadata]);
+    if (id !== undefined) {
+      metadata.id = id;
+    }
+    metadata.json = Project.getProject(
+      ScratchJr.stage.currentPage
+        ? ScratchJr.stage.currentPage.id
+        : ScratchJr.stage.pages[0].id
+      );
+      
+      // Send this meta data to parent iframe
+      const projectMetaData = JSON.stringify([metadata]);
+      console.log("ScratchJr.stage.pages[0]",projectMetaData)
     parent.postMessage({
       type: "SAVE_DATA",
       data: projectMetaData,
@@ -592,10 +614,12 @@ export default class Project {
       if (md5.substr(md5.length - 3) == "png") {
         var bgimg = page.div.firstElementChild.firstElementChild;
         pcnv = Project.drawPNGInCanvas(bgimg, 480, 360);
-      } else {
+      } else if (page.svg) {
         pcnv = Project.drawSVGinCanvas(page.svg, 480, 360);
       }
-      ctx.drawImage(pcnv, 0, 0, 480, 360, 0, 0, w, h);
+      if (pcnv) {
+        ctx.drawImage(pcnv, 0, 0, 480, 360, 0, 0, w, h);
+      }
       Project.drawSprites(page, scale, c, w, h, fcn);
     }
   }

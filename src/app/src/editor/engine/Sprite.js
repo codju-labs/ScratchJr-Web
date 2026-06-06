@@ -89,10 +89,12 @@ export default class Sprite {
     function gotImage(dataurl) {
       me.setCostume(dataurl, fcn);
     }
-    // Broadcast autosave
-    Project.save(ScratchJr.currentProject, () => {
-      console.log("Broadcast Autosave");
-    });
+    // Broadcast autosave - only if project is fully loaded (not during recreate)
+    if (!Project.saving && !Project.loading && ScratchJr.isEditable && ScratchJr.isEditable()) {
+      Project.save(ScratchJr.currentProject, () => {
+        console.log("Broadcast Autosave");
+      });
+    }
   }
 
   getAsset(whenDone) {

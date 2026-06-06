@@ -11,11 +11,21 @@
 <script>
     window.scratchJrPage = 'editor';
 
-    // Read initial project data from URL hash
+    // Read initial project data from URL hash or query param
+    // Hash: iframe.src = "index.html#" + encodeURIComponent(jsonString)
+    // Query: iframe.src = "index.html?data=" + jsonString (legacy)
     if (window.location.hash && window.location.hash.length > 1) {
       try {
         window.savedContent = decodeURIComponent(window.location.hash.substring(1));
-      } catch (e) {}
+      } catch (e) {
+        window.savedContent = window.location.hash.substring(1);
+      }
+    } else {
+      var urlParams = new URLSearchParams(window.location.search);
+      var dataParam = urlParams.get("data");
+      if (dataParam) {
+        window.savedContent = dataParam;
+      }
     }
 
     // Support postMessage for loading data after init
@@ -24,6 +34,12 @@
         window.__scratchJrLoadData = e.data.data;
         if (window.__scratchJrReady && window.__loadExternalProject) {
           window.__loadExternalProject(e.data.data);
+        }
+      }
+      if (e.data && e.data.type === "REQUEST_SAVE") {
+        // Trigger a save from parent - calls Project.save which posts SAVE_DATA back
+        if (window.__scratchJrReady && window.__requestSave) {
+          window.__requestSave();
         }
       }
     });

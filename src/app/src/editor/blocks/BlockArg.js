@@ -2,6 +2,7 @@ import ScratchJr from '../ScratchJr';
 import BlockSpecs from './BlockSpecs';
 import Menu from './Menu';
 import Undo from '../ui/Undo';
+import Project from '../ui/Project';
 import {setCanvasSize, setProps, writeText, scaleMultiplier,
     newHTML, newDiv, newCanvas, getStringSize, isTablet,
     newP, globalx, globaly} from '../../utils/lib';
@@ -348,6 +349,7 @@ export default class BlockArg {
             };
             Undo.record(action);
             ScratchJr.storyStart('BlockArg.prototype.closePictureMenu');
+            Project.save(ScratchJr.currentProject);
         }
         Menu.openMenu = undefined;
     }
@@ -389,6 +391,7 @@ export default class BlockArg {
             };
             Undo.record(action);
             ScratchJr.storyStart('BlockArg.prototype.menuCloseSpeeds');
+            Project.save(ScratchJr.currentProject);
         }
         Menu.openMenu = undefined;
     }

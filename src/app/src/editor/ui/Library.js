@@ -593,10 +593,8 @@ export default class Library {
         ScratchJr.stage.currentPage.updateBkg
       );
     }
-    Project.save(ScratchJr.currentProject, () => {
-      console.log("Broadcast Autosave");
-    });
     Library.close(e);
+    Project.save(ScratchJr.currentProject);
   }
 
   /////////////////////////////////////////

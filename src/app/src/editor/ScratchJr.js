@@ -955,6 +955,7 @@ export default class ScratchJr {
         if (ba.argValue != ba.oldvalue) {
           ScratchJr.storyStart("ScratchJr.numEditDone");
           Undo.record(action);
+          Project.save(ScratchJr.currentProject);
         }
       }
     }
