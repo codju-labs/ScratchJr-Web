@@ -517,14 +517,14 @@ export default class Project {
     parent.postMessage({
       type: "SAVE_DATA",
       data: projectMetaData,
-    });
+    }, "*");
 
     // Generate and send thumbnail to parent
     Project.getThumbnailPNG(ScratchJr.stage.pages[0], 192, 144, function (dataurl) {
       parent.postMessage({
         type: "STAGE_THUMBNAIL",
         data: dataurl,
-      });
+      }, "*");
     });
 
     saving = false;
