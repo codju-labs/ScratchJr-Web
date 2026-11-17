@@ -111,6 +111,7 @@ export default class Project {
     ScratchJr.log("got project metadata", ScratchJr.getTime(), "sec");
     var data = JSON.parse(str)[0];
     metadata = IO.parseProjectData(data);
+    loading = true;
     mediaCount = -1;
     if (metadata.json) {
       Project.loadData(metadata.json, doneProjectLoad);
@@ -154,9 +155,16 @@ export default class Project {
 
       // Define external project loader for parent to call via postMessage
       window.__loadExternalProject = function (jsonStr) {
+        // One loader owns mediaCount and the stage at a time. Replacing a project
+        // during an in-flight load would mix callbacks from two different stages.
+        if (loading) {
+          window.__scratchJrLoadData = jsonStr;
+          return;
+        }
         try {
           Project.dataRecieved(jsonStr);
         } catch (e) {
+          loading = false;
           console.error("Failed to load external project", e);
         }
       };
@@ -355,6 +363,7 @@ export default class Project {
       }, 100);
       Project.liftCurtain();
       error = true;
+      loading = false;
     }
   }
 
@@ -387,6 +396,10 @@ export default class Project {
       "sec"
     );
     loading = true;
+    // Dropping the array alone retains the old pages, scripts and canvases in
+    // the DOM, and duplicate sprite IDs make lookups find the previous project.
+    ScratchJr.runtime.stopThreads();
+    Project.clear();
     mediaCount = 0;
     ScratchJr.stage.pages = [];
     var pages = data.pages;

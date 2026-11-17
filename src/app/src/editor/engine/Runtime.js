@@ -25,6 +25,10 @@ export default class Runtime {
     }
 
     tickTask () {
+        // A replacement project is not safe to traverse until its media is ready.
+        if (Project.loading) {
+            return;
+        }
         ScratchJr.updateRunStopButtons();
         if (this.threadsRunning.length < 1) {
             return;
