@@ -170,8 +170,10 @@ export default class Project {
 
       // Check if data was sent before we were ready
       if (window.__scratchJrLoadData) {
-        window.__loadExternalProject(window.__scratchJrLoadData);
+        // Consume before loading: completion can run synchronously.
+        const pendingData = window.__scratchJrLoadData;
         window.__scratchJrLoadData = null;
+        window.__loadExternalProject(pendingData);
       }
     }
   }
