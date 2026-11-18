@@ -107,11 +107,45 @@ export default class Project {
     IO.getObject(ScratchJr.currentProject, Project.dataRecieved);
   }
 
+  // Each block owns multiple canvases. Reject oversized input before allocating
+  // those resources; the host can offer a non-destructive recovery preview.
+  static countProjectBlocks(data, limit = 2000) {
+    data = typeof data === "string" ? JSON.parse(data) : data;
+    if (!data) return 0;
+    let count = 0;
+    for (const pageId of data.pages || []) {
+      const page = data[pageId];
+      for (const spriteId of page.sprites || []) {
+        const pending = (page[spriteId].scripts || []).slice();
+        while (pending.length) {
+          const strip = pending.pop();
+          if (!Array.isArray(strip)) continue;
+          for (const block of strip) {
+            if (!Array.isArray(block) || typeof block[0] !== "string") continue;
+            if (++count > limit) return count;
+            if (block[0] === "repeat" && Array.isArray(block[4])) pending.push(block[4]);
+          }
+        }
+      }
+    }
+    return count;
+  }
+
   static dataRecieved(str) {
     ScratchJr.log("got project metadata", ScratchJr.getTime(), "sec");
     var data = JSON.parse(str)[0];
+    const blockCount = Project.countProjectBlocks(data.json);
+    if (blockCount > 2000) {
+      window.__scratchJrLoadData = null;
+      parent.postMessage({ type: "PROJECT_TOO_LARGE", blockLimit: 2000 }, "*");
+      // Keep an already open project intact when a delayed message is rejected.
+      if (!ScratchJr.stage.pages.length) {
+        const body = gn("modalbody");
+        if (body) body.textContent = "This project is too large to open safely. Please return to the lesson to preview a recovered copy.";
+      }
+      return;
+    }
     metadata = IO.parseProjectData(data);
-    loading = true;
     mediaCount = -1;
     if (metadata.json) {
       Project.loadData(metadata.json, doneProjectLoad);
@@ -155,16 +189,9 @@ export default class Project {
 
       // Define external project loader for parent to call via postMessage
       window.__loadExternalProject = function (jsonStr) {
-        // One loader owns mediaCount and the stage at a time. Replacing a project
-        // during an in-flight load would mix callbacks from two different stages.
-        if (loading) {
-          window.__scratchJrLoadData = jsonStr;
-          return;
-        }
         try {
           Project.dataRecieved(jsonStr);
         } catch (e) {
-          loading = false;
           console.error("Failed to load external project", e);
         }
       };
@@ -178,7 +205,6 @@ export default class Project {
 
       // Check if data was sent before we were ready
       if (window.__scratchJrLoadData) {
-        // Consume before loading: completion can run synchronously.
         const pendingData = window.__scratchJrLoadData;
         window.__scratchJrLoadData = null;
         window.__loadExternalProject(pendingData);
@@ -363,7 +389,6 @@ export default class Project {
       }, 100);
       Project.liftCurtain();
       error = true;
-      loading = false;
     }
   }
 
@@ -396,10 +421,10 @@ export default class Project {
       "sec"
     );
     loading = true;
-    // Dropping the array alone retains the old pages, scripts and canvases in
-    // the DOM, and duplicate sprite IDs make lookups find the previous project.
-    ScratchJr.runtime.stopThreads();
-    Project.clear();
+    if (ScratchJr.stage.pages.length) {
+      ScratchJr.runtime.stopThreads();
+      Project.clear();
+    }
     mediaCount = 0;
     ScratchJr.stage.pages = [];
     var pages = data.pages;

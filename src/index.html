@@ -38,14 +38,10 @@
 
       // Support postMessage for loading data after init
       window.addEventListener("message", function (e) {
-        if (e.origin !== window.location.origin || e.source !== window.parent) {
-          return;
-        }
         if (e.data && e.data.type === "LOAD_DATA") {
+          window.__scratchJrLoadData = e.data.data;
           if (window.__scratchJrReady && window.__loadExternalProject) {
             window.__loadExternalProject(e.data.data);
-          } else {
-            window.__scratchJrLoadData = e.data.data;
           }
         }
         if (e.data && e.data.type === "REQUEST_SAVE") {

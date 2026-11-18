@@ -562,10 +562,6 @@ export default class Paint {
     /////////////////////////////////
 
     static layout () {
-        // This editor belongs to the iframe, not to each loaded project.
-        if (paintFrame.querySelector('.innerpaint')) {
-            return;
-        }
         Paint.topbar();
         var div = newHTML('div', 'innerpaint', paintFrame);
         Paint.leftPalette(div);
